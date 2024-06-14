@@ -55,7 +55,9 @@ class NewsScraper:
             logging.info(f'Searching news for phrase: {search_phrase}, category: {category}, source: {source}')
 
             self.browser.open_available_browser(source)
-            self.dismiss_overlays()
+            #self.dismiss_overlays()
+
+            self.browser.execute_javascript("location.reload()")
 
             self.browser.wait_until_element_is_visible("class:SearchOverlay-search-button", timeout=10)
             self.browser.click_element("class:SearchOverlay-search-button")
