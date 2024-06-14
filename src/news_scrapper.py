@@ -13,6 +13,7 @@ import os
 import re
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 from RPA.Browser.Selenium import Selenium
 from RPA.Excel.Files import Files
@@ -55,9 +56,10 @@ class NewsScraper:
             logging.info(f'Searching news for phrase: {search_phrase}, category: {category}, source: {source}')
 
             self.browser.open_available_browser(source)
-            #self.dismiss_overlays()
-
             self.browser.execute_javascript("location.reload()")
+            time.sleep(3)
+
+            self.dismiss_overlays()
 
             self.browser.wait_until_element_is_visible("class:SearchOverlay-search-button", timeout=10)
             self.browser.click_element("class:SearchOverlay-search-button")
