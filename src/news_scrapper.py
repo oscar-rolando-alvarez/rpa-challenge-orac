@@ -159,7 +159,7 @@ class NewsScraper:
 
     def dismiss_overlays(self):
         try:
-            self.browser.wait_until_element_is_visible("css:.onetrust-close-btn-handler", timeout=10)
-            self.browser.click_element("css:.onetrust-close-btn-handler")
+            self.browser.wait_until_element_is_visible("css:.fancybox-item fancybox-close", timeout=10)
+            self.browser.click_element("css:.fancybox-item fancybox-close")
         except Exception as e:
             logging.info(f"No overlay to dismiss, details: {e}")
