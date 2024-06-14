@@ -156,3 +156,10 @@ class NewsScraper:
         except Exception as e:
             logging.error(f"Error closing browser, details: {e}")
 
+
+    def dismiss_overlays(self):
+        try:
+            self.browser.wait_until_element_is_visible("css:.onetrust-close-btn-handler", timeout=10)
+            self.browser.click_element("css:.onetrust-close-btn-handler")
+        except Exception as e:
+            logging.info(f"No overlay to dismiss, details: {e}")
