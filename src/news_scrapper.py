@@ -56,6 +56,8 @@ class NewsScraper:
 
             self.browser.open_available_browser(source)
             self.dismiss_overlays()
+
+            self.browser.wait_until_element_is_visible("class:SearchOverlay-search-button", timeout=10)
             self.browser.click_element("class:SearchOverlay-search-button")
             self.browser.wait_until_element_is_visible("name:q", 5)
             self.browser.input_text("name:q", search_phrase)
@@ -157,9 +159,13 @@ class NewsScraper:
             logging.error(f"Error closing browser, details: {e}")
 
 
-    def dismiss_overlays(self):
-        try:
-            self.browser.wait_until_element_is_visible("css:.fancybox-close", timeout=30)
+def dismiss_overlays(self):
+    try:
+        if self.browser.is_element_visible("css:.fancybox-close"):
             self.browser.click_element("css:.fancybox-close")
-        except Exception as e:
-            logging.info(f"No overlay to dismiss, details: {e}")
+        else:
+            self.browser.click_element("css:body")
+
+        self.browser.wait_until_element_is_not_visible("css:.fancybox-close", timeout=20)
+    except Exception as e:
+        logging.info(f"No overlay to dismiss, details: {e}")
