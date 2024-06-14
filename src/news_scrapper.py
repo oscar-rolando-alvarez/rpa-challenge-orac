@@ -61,6 +61,7 @@ class NewsScraper:
             self.browser.click_element("class:SearchOverlay-search-submit")
             self.browser.wait_until_page_contains("Results for")
 
+            self.dismiss_overlays()
             results = self.browser.find_element("class:SearchResultsModule-results")
             articles = self.browser.find_elements("class:PageList-items-item", results)
 
