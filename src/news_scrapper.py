@@ -159,13 +159,13 @@ class NewsScraper:
             logging.error(f"Error closing browser, details: {e}")
 
 
-def dismiss_overlays(self):
-    try:
-        if self.browser.is_element_visible("css:.fancybox-close"):
-            self.browser.click_element("css:.fancybox-close")
-        else:
-            self.browser.click_element("css:body")
+    def dismiss_overlays(self):
+        try:
+            if self.browser.is_element_visible("css:.fancybox-close"):
+                self.browser.click_element("css:.fancybox-close")
+            else:
+                self.browser.click_element("css:body")
 
-        self.browser.wait_until_element_is_not_visible("css:.fancybox-close", timeout=20)
-    except Exception as e:
-        logging.info(f"No overlay to dismiss, details: {e}")
+            self.browser.wait_until_element_is_not_visible("css:.fancybox-close", timeout=20)
+        except Exception as e:
+            logging.info(f"No overlay to dismiss, details: {e}")
