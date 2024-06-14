@@ -55,13 +55,13 @@ class NewsScraper:
             logging.info(f'Searching news for phrase: {search_phrase}, category: {category}, source: {source}')
 
             self.browser.open_available_browser(source)
+            self.dismiss_overlays()
             self.browser.click_element("class:SearchOverlay-search-button")
             self.browser.wait_until_element_is_visible("name:q", 5)
             self.browser.input_text("name:q", search_phrase)
             self.browser.click_element("class:SearchOverlay-search-submit")
             self.browser.wait_until_page_contains("Results for")
 
-            self.dismiss_overlays()
             results = self.browser.find_element("class:SearchResultsModule-results")
             articles = self.browser.find_elements("class:PageList-items-item", results)
 
