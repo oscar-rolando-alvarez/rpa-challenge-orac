@@ -1,14 +1,3 @@
-"""
-******************************************************************************
-*   PROJECT     :   rpa-challenge-orac
-*   UTIL NAME   :   tasks
-*   AUTHOR      :   oscaralvarez
-*   CR DATE     :   6/4/24
-******************************************************************************
-*   OBJECTIVE   :   tasks
-******************************************************************************
-"""
-
 import os
 import re
 import json
@@ -47,6 +36,7 @@ class NewsScraper:
 
     def search_news(self):
         news_data = []
+        start_time = time.time()
         try:
             search_phrase = self.config["search_phrase"]
             category = self.config["category"]
@@ -58,6 +48,12 @@ class NewsScraper:
             self.browser.open_available_browser(source)
             self.browser.execute_javascript("location.reload()")
             time.sleep(3)
+            logging.info(f"Browser opened and page reloaded in {time.time() - start_time:.2f} seconds")
+
+            if self.is_modal_present():
+                self.browser.execute_javascript("location.reload()")
+                time.sleep(3)
+                logging.info("Modal detected and page reloaded.")
 
             self.dismiss_overlays()
 
@@ -67,9 +63,11 @@ class NewsScraper:
             self.browser.input_text("name:q", search_phrase)
             self.browser.click_element("class:SearchOverlay-search-submit")
             self.browser.wait_until_page_contains("Results for")
+            logging.info(f"Search performed in {time.time() - start_time:.2f} seconds")
 
             results = self.browser.find_element("class:SearchResultsModule-results")
             articles = self.browser.find_elements("class:PageList-items-item", results)
+            logging.info(f"Articles found in {time.time() - start_time:.2f} seconds")
 
             for article in articles:
                 try:
@@ -91,7 +89,7 @@ class NewsScraper:
                         image_filename = self.download_image(image_url)
                         news_article = {
                             "title": self.clean_text(title),
-                            "date": article_date, #.strftime("%Y-%m-%d"),
+                            "date": article_date,
                             "description": self.clean_text(description),
                             "image_filename": image_filename,
                             "search_phrase_count": self.count_search_phrases(title, description, search_phrase),
@@ -109,6 +107,14 @@ class NewsScraper:
             logging.error(f"Error processing the news search, details: {e}")
         finally:
             self.save_to_excel(news_data)
+            logging.info(f"Total search time: {time.time() - start_time:.2f} seconds")
+
+    def is_modal_present(self):
+        try:
+            return self.browser.is_element_visible("css:fancybox-wrap fancybox-desktop fancybox-type-html fancybox-opened")
+        except Exception as e:
+            logging.error(f"Error checking for modal, details: {e}")
+            return False
 
     def is_within_months(self, article_date, months):
         current_date = datetime.now()
@@ -133,6 +139,7 @@ class NewsScraper:
             return ""
 
     def save_to_excel(self, news_data):
+        start_time = time.time()
         try:
             output_file = os.path.join(self.output_dir, "news_data.xlsx")
             self.excel.create_workbook(output_file)
@@ -148,7 +155,7 @@ class NewsScraper:
                     data["contains_money"]
                 ]], "News")
             self.excel.save_workbook()
-            logging.info(f"Saved news data to {output_file}.")
+            logging.info(f"Saved news data to {output_file} in {time.time() - start_time:.2f} seconds")
         except Exception as e:
             logging.error(f"Error saving data to Excel, details: {e}")
 
@@ -162,14 +169,16 @@ class NewsScraper:
         except Exception as e:
             logging.error(f"Error closing browser, details: {e}")
 
-
     def dismiss_overlays(self):
         try:
-            if self.browser.is_element_visible("css:.fancybox-close"):
-                self.browser.click_element("css:.fancybox-close")
+            if self.browser.is_element_visible("id:onetrust-accept-btn-handler"):
+                self.browser.click_element("id:onetrust-accept-btn-handler")
+                
+            if self.browser.is_element_visible("css:fancybox-item fancybox-close"):
+                self.browser.click_element("css:fancybox-item fancybox-close")
             else:
                 self.browser.click_element("css:body")
 
-            self.browser.wait_until_element_is_not_visible("css:.fancybox-close", timeout=20)
+            self.browser.wait_until_element_is_not_visible("css:fancybox-item fancybox-close", timeout=20)
         except Exception as e:
             logging.info(f"No overlay to dismiss, details: {e}")
